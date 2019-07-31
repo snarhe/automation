@@ -1,7 +1,7 @@
 #!/bin/bash
 
 FN=$1
-
+EMAIL='s.narhe@yahoo.in'
 SAR_DATE=`date -d "1 day ago" +%d`
 Y_DATE=`date -d '1 day ago' +%d-%b-%Y`
 
@@ -21,6 +21,6 @@ do
         sed -i '1i Time,Used,Cache' sar_mem.csv
         python graph_cpu.py &> /dev/null
         python graph_memory.py &> /dev/null
-        echo -e "Hello,\n\nPlease find attached sar report for date $Y_DATE.\n\n\nRegards,\nSunil N" | mail -s "$SERVER SAR Report $Y_DATE" -a cpu.png -a mem.png sunil.narhe@capgemini.com
+        echo -e "Hello,\n\nPlease find attached sar report for date $Y_DATE.\n\n\nRegards,\nSunil N" | mail -s "$SERVER SAR Report $Y_DATE" -a cpu.png -a mem.png $EMAIL
         rm -rf cpu.png mem.png sar_mem_raw.csv sar_cpu_raw.csv sar_mem_raw1.csv sar_mem.csv sar_cpu.csv
 done
