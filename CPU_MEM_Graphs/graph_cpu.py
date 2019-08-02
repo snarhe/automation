@@ -2,6 +2,18 @@ import pandas as pd
 from datetime import datetime, timedelta, time
 import matplotlib.pyplot as plt
 from matplotlib import dates as mpl_dates
+import argparse
+
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s','--server', help='Server IP/Hostname', required=True)
+    parser.add_argument('-d','--rdate', help='Report date in format dd-MMM-YYYY', required=True)
+    arguments = parser.parse_args()
+    HOST = arguments.server
+    RDATE = arguments.rdate
+    return HOST, RDATE
+
+HOST, RDATE = get_args()
 
 plt.style.use('seaborn')
 
@@ -19,10 +31,10 @@ plt.plot_date(Time, System, linestyle='solid', label='%system')
 plt.plot_date(Time, Idle, linestyle='solid', label='%idle')
 plt.gcf().autofmt_xdate()
 
-plt.title('Sar CPU Report')
+plt.title('{} CPU Report: {}'.format(HOST, RDATE))
 plt.xlabel('Server Time')
-plt.ylabel('CPU Utilization')
+plt.ylabel('CPU Utilization in Percentage')
 plt.legend()
 plt.tight_layout()
-plt.savefig('cpu.png')
+plt.savefig('{}-{}-cpu.png'.format(HOST, RDATE))
 
