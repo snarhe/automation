@@ -23,3 +23,9 @@ Syntax:
 $sh sar_graph.sh servers.txt
 
 Please change email address in 'sar_graph.sh' 
+
+Last modify:
+1. Modify graph name with server name and date ex. servername-01-Aug-2019-cpu.png
+2. Added Server Name and Date in title of the graph
+3. Added separate sar_csv.sh to generate csv report 
+   Syntax: sh sar_csv.sh servers.txt 
