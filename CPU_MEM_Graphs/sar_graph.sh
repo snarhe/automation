@@ -21,6 +21,6 @@ do
         sed -i '1i Time,Used,Cache' sar_mem.csv
         python graph_cpu.py -s $SERVER -d $Y_DATE
         python graph_memory.py -s $SERVER -d $Y_DATE
-        echo -e "Hello,\n\nPlease find attached sar report for date $Y_DATE.\n\n\nRegards,\nSunil N" | mail -s "$SERVER SAR Report $Y_DATE" -a $SERVER-$Y_DATE-cpu.png -a $SERVER-$Y_DATE-mem.png sunil.narhe@capgemini.com
+        echo -e "Hello,\n\nPlease find attached sar report for date $Y_DATE.\n\n\nRegards,\nSunil N" | mail -s "$SERVER SAR Report $Y_DATE" -a $SERVER-$Y_DATE-cpu.png -a $SERVER-$Y_DATE-mem.png $EMAIL
         rm -rf $SERVER-$Y_DATE-cpu.png $SERVER-$Y_DATE-mem.png sar_mem_raw.csv sar_cpu_raw.csv sar_mem_raw1.csv sar_mem.csv sar_cpu.csv
 done
