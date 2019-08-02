@@ -3,6 +3,19 @@ from datetime import datetime, timedelta, time
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import dates as mpl_dates
+import argparse
+
+
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s','--server', help='Server IP/Hostname', required=True)
+    parser.add_argument('-d','--rdate', help='Report date in format dd-MMM-YYYY', required=True)
+    arguments = parser.parse_args()
+    HOST = arguments.server
+    RDATE = arguments.rdate
+    return HOST, RDATE
+
+HOST, RDATE = get_args()
 
 plt.style.use('seaborn')
 
@@ -18,9 +31,10 @@ plt.plot_date(Time, Used, linestyle='solid', label='%used')
 plt.plot_date(Time, Cache, linestyle='solid', label='%cache')
 plt.gcf().autofmt_xdate()
 
-plt.title('Sar Memory Report')
+plt.title('{} Memory Report: {}'.format(HOST, RDATE))
 plt.xlabel('Server Time')
-plt.ylabel('Memory Utilization')
+plt.ylabel('Memory Utilization in Percentage')
 plt.legend()
 plt.tight_layout()
-plt.savefig('mem.png')
+plt.savefig('{}-{}-mem.png'.format(HOST, RDATE))
+
