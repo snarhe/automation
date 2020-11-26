@@ -28,6 +28,7 @@ from email.encoders import encode_base64
 from smtplib import SMTP
 import argparse
 import csv
+import time
 
 # You Gmail credential which used to send email
 strFrom = 'virtumentor@gmail.com'
@@ -103,6 +104,7 @@ with open(InputFile) as file:
             msgText = MIMEText('There is an issue to attach file.')
             msgAlternative.attach(msgText)
             FileAttach(attachfile)
+            time.sleep(10)
             server.sendmail(msgRoot['From'], email, msgRoot.as_string())
             print(f'Email sent to {email}')
         except:
