@@ -17,19 +17,6 @@ LOGDIR=$BASEPATH/logs
 LOGFILE=$LOGDIR/access_log_analysis_$DATE.log
 REPORT_LOG=$LOGDIR/access_log_analysis_$DATE.csv
 
-#Print Help menu
-HELP()
-{
-echo "    --server: Server IP/Hostname (Which Access log file given name)";
-echo "    --protocol <protocol>: Protocol which you want search like TCP,UDP";
-echo "    --logfile <file_name>: Log File name";
-echo "    --srcip <IP/HOST> Source IP/Hostname used in Access log to captured";
-echo "    --dstip <IP/HOST> Destination IP/Hostname used in Access log to captured";
-echo "    --pktsize: Packet size must with greater than (-gt), less than (-lt), equal to (-eq) or not equal to !(eq)";
-echo "    --help: To print this help menu";
-echo ""
-}
-
 #Read the content provided by user
 IndexOf()    {
     local i=1 S=$1; shift
@@ -45,7 +32,7 @@ LOGIT()
 {
     local message=$1
     local timestamp=$(date +'%d %b %Y %T')
-    echo "[${timestamp}]        $message"
+    #echo "[${timestamp}]        $message"
     echo "[${timestamp}]        $message" >> $LOGFILE
 }
 
@@ -57,49 +44,66 @@ ANALYSIS_LOG()
     echo "$message" >> $REPORT_LOG
 }
 
+EXTRACT_LOG()
+{
+    local log_file_name=$1
+    LOGIT "INFO    Checking required packages to unzip logfile"
+    if [[ `type type > /dev/null ; echo $?` == 0 ]]
+    then
+        type_status=1
+    else
+        type_status=0
+    fi
+    if [[ `which which > /dev/null ; echo $?` == 0 ]]
+    then 
+        which_status=1
+    else
+        which_status=0
+    fi
+    if [[ $type_status == 1 ]]
+    then
+        LOGIT "INFO    TYPE module found"
+        UNZIP_PATH=`type unzip | awk '{print $NF}'`
+    elif [[ $which_status == 1 ]]
+    then
+        LOGIT "INFO    WHICH module found"
+        UNZIP_PATH=`which unzip`
+    else
+        LOGIT "ERROR    No TYPE/WHICH module found, install it manually"
+        exit 0
+    fi
+    LOGIT "INFO    Extracting log file"
+    $UNZIP_PATH -qq $log_file_name 
+    LOGIT "INFO    Extract completed"
+}
 
 #Main body of script
 mkdir -p $LOGDIR
-if [[ $# == 0 ]]
+if [[ -f $BASEPATH/serv_acc.zip ]]
 then
-    LOGIT "Error    At least one parameter is manadatory. Use 'sh $0 --help'";
-elif [ $1 == '--help' ]
-then
-    HELP
-else
-    parameter_list=$@
-    if [[ `echo $parameter_list | grep -e '--server' > /dev/null; echo $?` == 0 ]]
+    EXTRACT_LOG $BASEPATH/serv_acc.zip
+    ls -l $BASEPATH/serv_acc/*.csv | awk -F'/' '{print $NF}' > $LOGDIR/log_file_list.txt
+    if [[ -f $LOGDIR/log_file_list.txt ]]
     then
-        server_index="`IndexOf '--server' ${parameter_list[@]}`"
-        server_values=`echo $parameter_list | cut -d" " -f$server_index`
-        LOGIT "INFO    Checking Access Log file"
-        ACCESS_LOG_FILE_NAME=$BASEPATH/$server_values.zip
-        if [[ -f $ACCESS_LOG_FILE_NAME ]]
-        then
-            LOGIT "INFO    Access Log file found ($ACCESS_LOG_FILE_NAME)"
-            LOGIT "INFO    Checking required parameter"
-            if [[ `echo $parameter_list | grep -e '--protocol' > /dev/null; echo $?` == 0 ]]
-            then
-                PROTOCOL_LOGS
-            elif [[ `echo $parameter_list | grep -e '--logfile' > /dev/null; echo $?` == 0 ]]
-            then
-                REPORT_LOG_FILE
-            elif [[ `echo $parameter_list | grep -e '--srcip' > /dev/null; echo $?` == 0 ]]
-            then
-                SRCIP
-            elif [[ `echo $parameter_list | grep -e '--dstip' > /dev/null; echo $?` == 0 ]]
-            then
-                DSTIP
-            elif [[ `echo $parameter_list | grep -e '--pktsize' > /dev/null; echo $?` == 0 ]]
-            then
-                PKTSIZE
-            fi
-        else
-            LOGIT "ERROR    Access log file not found on server"
-            exit 0
-        fi
+        log_file_list_array=($(cat $LOGDIR/log_file_list.txt | sed 's#\n#,#g'))
+        LOGIT "INFO    Getting log file details"
+        echo "The logs array contains ${#log_file_list_array[@]} files"
+        for i in "${!log_file_list_array[@]}"
+        do
+            echo "    `expr $i + 1`    ${log_file_list_array[$i]}"
+        done
+        LOGIT "INFO    Accepting Log file name from User"
+        read -p "Enter the number of the file in the menu above you wish to search, i.e. [1,2,3,4 or 5] " log_file_name
+        echo "You have selected $log_file_name"
+        LOGIT "INFO    We will process file ${log_file_list_array[`expr $log_file_name - 1`]}"
+        LOGIT "INFO    Accepting field parameter to search"
+        echo "    "
     else
-        LOGIT "Error    --server parameter is manadatory."
+        LOGIT "ERROR    Empty log directory"
         exit 0
     fi
+    
+else
+    LOGIT "ERROR    Please copy serv_acc.zip file in $BASEPATH"
 fi
+
